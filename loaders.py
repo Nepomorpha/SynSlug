@@ -29,11 +29,16 @@ def read_chr_sizes(path):
 def read_colors(path):
     """read 'chr <tab> HEXcolour' table into {chr: color}. Header line is ignored."""
     df = pd.read_csv(path, sep="\t", header=None, dtype=str).dropna()
-    colors = {}
-    for chrom, color in zip(df[0], df[1]):
-        if str(color).startswith("#"):          # this skips 'chr  color' header row
-            colors[str(chrom)] = str(color)
-    return colors
+    df[1] = df[1].str.strip()
+
+    if len(df) and not df[1].iloc[0].startswith("#"):
+        df = df.iloc[1:]                      # first row only: could be a header row
+
+    bad = df[~df[1].str.startswith("#")]
+    if len(bad):
+        raise ValueError(f"{path}: not a hex colour (missing '#'?): {bad.values.tolist()}")
+
+    return dict(zip(df[0].astype(str), df[1].astype(str)))
 
 
 def read_name_map(path):
@@ -98,8 +103,11 @@ def read_link_path(path, a, b, chr_sizes):
     """
     df = _read_link_file(path, swap=False)
     a_chrs, b_chrs = set(chr_sizes.get(a, {})), set(chr_sizes.get(b, {}))
-    side1 = set(df["chr1"])
-    if (side1 & b_chrs) and not (side1 & a_chrs):
+    side1, side2 = set(df["chr1"]), set(df["chr2"])
+
+    as_is = len(side1 & a_chrs) + len(side2 & b_chrs)
+    swapped = len(side1 & b_chrs) + len(side2 & a_chrs)
+    if swapped > as_is:
         df = _read_link_file(path, swap=True)
     return df
 
@@ -116,16 +124,16 @@ def link_path_for_pair(links, a, b):
     return None
 
 
-def load_links(cfg, chr_sizes, chain): 
+def load_links(cfg, chr_sizes, chain):
     """Read one link table per adjacent pair in the chain (link-file mode)."""
     links_by_pair = {}
-    for i in range(len(chain) - 1): 
-        a, b = chain[i], chain[i + 1] 
+    for i in range(len(chain) - 1):
+        a, b = chain[i], chain[i + 1]
         path = link_path_for_pair(cfg["links"], a, b)
         if path is None:
             raise ValueError(f'no link file for pair {a}-{b}: add  {a}_{b} = "..."  under '
                              f"[links] (have: {sorted(cfg['links'])})")
-        if not os.path.exists(path): 
+        if not os.path.exists(path):
             raise FileNotFoundError(f"the link file for pair {a}-{b} not found: {path}")
         links_by_pair[(a, b)] = read_link_path(path, a, b, chr_sizes)
         print(f"  {a}-{b}: {len(links_by_pair[(a, b)]):,} links")
@@ -150,19 +158,19 @@ def read_bedgraph(path):
     df = pd.read_csv(path, sep="\t", header=None, comment="#", dtype=str, skiprows=_n_header_lines(path), names=["chrom", "start", "end", "value"])
     df["chrom"] = df["chrom"].astype(str) 
     df["start"] = df["start"].astype(int)
-    df["end"] = df["end"].astype(int) 
-    df["value"] = df["value"].astype(float)
+    df["end"] = df["end"].astype(int)
+    df["value"] = df["value"].astype(float) 
     return df
 
 
 def read_bed(path):
-    """Read first 3 columns of a BED. For costum .bed extra column is ignored, just ensure order it correct."""
+    """Read  first 3 columns of a BED, for costum .bed extra column is ignored, just ensure order it correct."""
     df = pd.read_csv(path, sep="\t", header=None, comment="#", dtype=str, skiprows=_n_header_lines(path))
     df = df.rename(columns={0: "chrom", 1: "start", 2: "end"})
-    df["chrom"] = df["chrom"].astype(str) 
-    df["start"] = df["start"].astype(int)
-    df["end"] = df["end"].astype(int) 
-    return df[["chrom", "start", "end"]]
+    df["chrom"] = df["chrom"].astype(str)
+    df["start"] = df["start"].astype(int) 
+    df["end"] = df["end"].astype(int)
+    return df[["chrom", "start", "end"]] 
 
 
 def load_tracks(cfg, chain):
