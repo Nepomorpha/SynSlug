@@ -1,0 +1,6 @@
+track name=test
+
+# comment
+chr1	100	200	featureA
+
+chr1	300	400	featureB

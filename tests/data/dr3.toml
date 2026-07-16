@@ -1,0 +1,9 @@
+chr_sizes = "dr3.tsv"
+chain = ["A", "B"]
+focal = "A"
+chr_label = true
+dpi = 100
+out = "../output/dr3.png"
+
+[links]
+A_B = "dr3l.tsv"

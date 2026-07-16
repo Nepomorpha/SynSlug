@@ -1,0 +1,3 @@
+##gff-version 3
+chr1	miniprot	mRNA	500	600	.	+	.	ID=MP001
+chr1	miniprot	CDS	500	600	.	+	0	Parent=MP001

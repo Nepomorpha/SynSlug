@@ -1,0 +1,8 @@
+chr_sizes = "dr2.tsv"
+chain = ["A"]
+focal = "A"
+chr_label = true
+dpi = 100
+out = "../output/dr2.png"
+
+[links]

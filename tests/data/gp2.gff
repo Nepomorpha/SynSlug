@@ -1,0 +1,4 @@
+##gff-version 3
+##sequence-region chr1 1 50000
+chr1	RefSeq	CDS	100	200	.	+	0	ID=cds-1;protein_id=XP_1
+chr1	miniprot	CDS	9000	9100	.	+	0	Parent=MP002
