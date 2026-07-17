@@ -1,5 +1,22 @@
 #!/usr/bin/env python3
 
+"""
+
+Program     : SynViser, synteny visualisation tool.
+Language    : Python
+Author      : Yehor Tertyshnyk, Mirela Krol
+Email       : egor.tertyshnyk@gmail.com
+Github      : https://github.com/Nepomorpha/SynViser
+License     : ?--?
+Citation    : -TBS-
+
+Description : This program is designed to take various inputs and produce synteny plots.
+
+Usage
+instructions: see -TBS-
+
+"""
+
 import sys
 
 from functions import plot
