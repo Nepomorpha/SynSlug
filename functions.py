@@ -54,3 +54,14 @@ DEFAULTS = {
     "chr_order": {},
     "colors_tsv": None,
     "out": None,}
+
+# Drawing
+
+def main_ribbon_painter(top_chr_span, bot_chr_span, y_top, y_bot, rgba):
+# see `drawing_studies.ipynb` for detailed info how I come to this function. 
+    xa1, xa2 = top_chr_span
+    xb1, xb2 = bot_chr_span
+    y_mid = (y_top + y_bot) / 2.0
+    verts = [(xa1, y_top), (xa1, y_mid), (xb1, y_mid), (xb1, y_bot), (xb2, y_bot), (xb2, y_mid), (xa2, y_mid), (xa2, y_top), (xa1, y_top)]
+    codes = [Path.MOVETO, Path.CURVE4, Path.CURVE4, Path.CURVE4, Path.LINETO, Path.CURVE4, Path.CURVE4, Path.CURVE4, Path.CLOSEPOLY]
+    return PathPatch(Path(verts, codes), facecolor=rgba, edgecolor="none", linewidth=0)
