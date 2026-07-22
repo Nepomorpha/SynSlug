@@ -65,3 +65,26 @@ def main_ribbon_painter(top_chr_span, bot_chr_span, y_top, y_bot, rgba):
     verts = [(xa1, y_top), (xa1, y_mid), (xb1, y_mid), (xb1, y_bot), (xb2, y_bot), (xb2, y_mid), (xa2, y_mid), (xa2, y_top), (xa1, y_top)]
     codes = [Path.MOVETO, Path.CURVE4, Path.CURVE4, Path.CURVE4, Path.LINETO, Path.CURVE4, Path.CURVE4, Path.CURVE4, Path.CLOSEPOLY]
     return PathPatch(Path(verts, codes), facecolor=rgba, edgecolor="none", linewidth=0)
+
+# colours 
+
+def assign_colors(chain, focal, focal_colors, links_by_pair, default_color):
+    """Add a 'color' column to every link DataFrame, traced back to the focal species.
+
+    Colours start on the focal chromosomes and spread further along the chain, step/chr by step/chr. The link is coloured by which of its two ends is closer the focal species.
+    Chaining based on the gene name when gene columns exist (each gene is unique per species), otherwise on the (chr, pos) coordinate (not prefered/reserve-exploratory option).  
+    A link whose near end was never coloured (no ortholog back to the focal) gets default_color.
+    """
+    focal_i = chain.index(focal)
+    use_genes = all(_has_gene_names(df) for df in links_by_pair.values())
+    known = {}      # known[sp][key] -> colour already decided
+    for sp in chain:
+        known[sp] = {}
+
+    def link_key(chrom, pos, gene):
+        if use_genes:
+            return str(gene)
+        return (str(chrom), int(pos))
+
+    _sweep_right(chain, focal_i, focal, focal_colors, links_by_pair, known, default_color, link_key)
+    _sweep_left(chain, focal_i, focal, focal_colors, links_by_pair, known, default_color, link_key)
