@@ -1,0 +1,14 @@
+chr_sizes = "ac1_chr_sizes.tsv"
+chain = ["X", "Y", "Z", "W"]
+focal = "Y"
+colors_tsv = "ac1_colors.tsv"
+chr_label = true
+chr_label_style = "name"
+fig_width = 8
+dpi = 120
+out = "../output/ac1.png"
+
+[links]
+X_Y = "ac1a.tsv"
+Y_Z = "ac1b.tsv"
+Z_W = "ac1c.tsv"

@@ -52,7 +52,37 @@ def read_name_map(path):
 def read_highlight_links(path):
     """Read a highlight TSV (link id, colour, optional label) into (colour, label) dicts."""
     df = pd.read_csv(path, sep="\t", header=None, dtype=str)
-    df = df[df[1].astype(str).str.startswith("#")]      # drop a header row, keep colour rows
+
+    if df.shape[1] not in (2, 3):
+        raise ValueError(f"{path}: highlight file needs 2 or 3 columns: gene_id, colour, optional label")
+
+    first_color = str(df.iloc[0, 1]).strip().lower()
+    if first_color in ("color", "colour", "hexcolor", "hexcolour"):
+        df = df.iloc[1:].copy()
+
+    if df.empty or df[0].isna().any() or df[1].isna().any():
+        raise ValueError(f"{path}: every highlight row needs a gene ID and colour")
+
+    df[0] = df[0].str.strip()
+    df[1] = df[1].str.strip()
+
+    if (df[0] == "").any():
+        raise ValueError(f"{path}: highlight gene IDs cannot be empty")
+
+    bad_colors = df[~df[1].str.fullmatch(r"#[0-9A-Fa-f]{6}([0-9A-Fa-f]{2})?")]
+    if len(bad_colors) > 0:
+        raise ValueError(f"{path}: highlight colours must be 6- or 8-digit hex colours")
+
+    duplicate_ids = []
+    seen_ids = set()
+    for gene_id in df[0]:
+        if gene_id in seen_ids:
+            duplicate_ids.append(gene_id)
+        seen_ids.add(gene_id)
+
+    if len(duplicate_ids) > 0:
+        raise ValueError(f"{path}: duplicate highlight gene ID(s): {duplicate_ids}")
+
     color = {}
     for gene_id, color_value in zip(df[0], df[1]):
         color[str(gene_id)] = str(color_value)
@@ -60,8 +90,9 @@ def read_highlight_links(path):
     label = {}
     if df.shape[1] >= 3:
         for gene_id, label_value in zip(df[0], df[2]):
-            if pd.notna(label_value):
-                label[str(gene_id)] = str(label_value)
+            clean_label = str(label_value).strip()
+            if pd.notna(label_value) and clean_label != "":
+                label[str(gene_id)] = clean_label
             else:
                 label[str(gene_id)] = str(gene_id)
     else:
@@ -79,6 +110,11 @@ def _read_link_file(path, swap):
 
     df.columns = ["chr1", "gene1", "pos1", "chr2", "gene2", "pos2"]
     if df["gene1"].isna().any() or df["gene2"].isna().any():
+        raise ValueError(f"{path}: gene1 and gene2 cannot be empty")
+
+    df["gene1"] = df["gene1"].astype(str).str.strip()
+    df["gene2"] = df["gene2"].astype(str).str.strip()
+    if (df["gene1"] == "").any() or (df["gene2"] == "").any():
         raise ValueError(f"{path}: gene1 and gene2 cannot be empty")
 
     if swap:
@@ -172,15 +208,57 @@ def read_bed(path):
 
 
 def load_tracks(cfg, chain):
-    """Group [[tracks]] entries by species, inferring type and loading each file."""
     tracks_for = {}
-    for t in cfg["tracks"]:
-        sp = t["species"]
-        if sp not in chain:
-            raise ValueError(f"track species '{sp}' is not in chain {chain}")
-        ttype = t.get("type") or ("bed" if t["file"].lower().endswith(".bed") else "hist")
-        data = read_bed(t["file"]) if ttype == "bed" else read_bedgraph(t["file"])
-        tracks_for.setdefault(sp, []).append({
-            "type": ttype, "color": t.get("color", "#555555"),
-            "label": t.get("label", ""), "where": t.get("where", "below"), "data": data})
+
+    for track in cfg["tracks"]:
+        species = track["species"]
+        path = track["file"]
+
+        if species not in chain:
+            raise ValueError(f"track species '{species}' is not in the chain")
+
+        if "type" in track:
+            track_type = track["type"]
+        elif path.lower().endswith(".bed"):
+            track_type = "bed"
+        else:
+            track_type = "hist"
+
+        if track_type != "bed" and track_type != "hist":
+            raise ValueError("track type must be 'bed' or 'hist'")
+
+        if "where" in track:
+            where = track["where"]
+        else:
+            where = "below"
+
+        if where != "above" and where != "below":
+            raise ValueError("track position must be 'above' or 'below'")
+
+        if "color" in track:
+            color = track["color"]
+        else:
+            color = "#555555"
+
+        if "label" in track:
+            label = track["label"]
+        else:
+            label = ""
+
+        if track_type == "bed":
+            data = read_bed(path)
+        else:
+            data = read_bedgraph(path)
+
+        if species not in tracks_for:
+            tracks_for[species] = []
+
+        tracks_for[species].append({
+            "type": track_type,
+            "color": color,
+            "label": label,
+            "where": where,
+            "data": data,
+        })
+
     return tracks_for
