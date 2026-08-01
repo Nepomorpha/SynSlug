@@ -4,7 +4,7 @@
 
 Program     : SynViser, synteny visualisation tool.
 Language    : Python
-Author      : Yehor Tertyshnyk, Mirela Krol
+Authors      : Yehor Tertyshnyk, Mirela Krol
 Email       : egor.tertyshnyk@gmail.com
 Github      : https://github.com/Nepomorpha/SynViser
 License     : ?--?

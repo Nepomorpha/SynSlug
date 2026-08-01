@@ -74,14 +74,12 @@ def read_highlight_links(path):
 def _read_link_file(path, swap):
     df = pd.read_csv(path, sep="\t")
     ncol = len(df.columns)
-    if ncol == 6:
-        df.columns = ["chr1", "gene1", "pos1", "chr2", "gene2", "pos2"]
-    elif ncol == 4:
-        df.columns = ["chr1", "pos1", "chr2", "pos2"]
-        df["gene1"] = None
-        df["gene2"] = None
-    else:
-        raise ValueError(f"{path}: expected 4 or 6 columns, found {ncol}: {list(df.columns)}") # in case something is wrong with data it should show you what is wrong with the format 
+    if ncol != 6:
+        raise ValueError(f"{path}: link file needs 6 columns: chr1, gene1, pos1, chr2, gene2, pos2")
+
+    df.columns = ["chr1", "gene1", "pos1", "chr2", "gene2", "pos2"]
+    if df["gene1"].isna().any() or df["gene2"].isna().any():
+        raise ValueError(f"{path}: gene1 and gene2 cannot be empty")
 
     if swap:
         df = df.rename(columns={"chr1": "chr2", "gene1": "gene2", "pos1": "pos2",
