@@ -1,0 +1,13 @@
+# figures and configs from notebook
+*.png
+my_config*.toml
+
+# some random python stuff
+__pycache__/
+*.pyc
+
+# jupyter
+.ipynb_checkpoints/
+
+# ???? 
+.DS_Store
