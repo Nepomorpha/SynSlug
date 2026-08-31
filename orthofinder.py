@@ -88,7 +88,18 @@ def read_gff_positions(path):
 
     miniprot = (gff["source"] == "miniprot").any()
     cds = gff[gff["type"] == "CDS"].copy()
-    cds["gene"] = cds["attr"].str.extract(r"Parent=([^;]+)" if miniprot else r"protein_id=([^;]+)")
+
+  # in case if Orthogroups/GFFs were obtained with miniprot/AGAT pipeline there was a problem with readability, including upper/lowercase in CDS. 
+  # Thats how this block of code was introduced. 
+    if cds["attr"].str.contains("Target=").any():
+        keep = ~cds["attr"].str.contains("rank=") | cds["attr"].str.contains(r"rank=1(?:;|$)")
+        cds = cds[keep].copy()
+        cds["gene"] = cds["attr"].str.extract(r"Target=([^;\s]+)")
+    elif miniprot:
+        cds["gene"] = cds["attr"].str.extract(r"Parent=([^;]+)")
+    else:
+        cds["gene"] = cds["attr"].str.extract(r"protein_id=([^;]+)")
+
     cds = cds.dropna(subset=["gene"]) 
 
     positions = _gene_positions_from_cds(cds)

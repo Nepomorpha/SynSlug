@@ -30,7 +30,13 @@ if len(sys.argv) > 6:
     out = sys.argv[6]
 
 cfg = functions.read_config(config_path)
-chr_sizes, links_by_pair = functions.load_sizes_and_links(cfg, cfg["chain"])
+# in case if Orthogroups/GFFs were obtained with miniprot/AGAT pipeline there was a problem with readability, including upper/lowercase in CDS. 
+  # Thats how this block of code was introduced. 
+if cfg["orthogroups"]:
+    chr_sizes, links_by_pair = functions.load_orthofinder(cfg, cfg["chain"])
+else:
+    chr_sizes = functions.read_chr_sizes(cfg["chr_sizes"])
+    links_by_pair = functions.load_links(cfg, chr_sizes, cfg["chain"])
 
 if (sp_a, sp_b) not in links_by_pair:
     print(f"no data for {sp_a} vs {sp_b}; you should pass them in the very same order they are appearing in the config chain")
