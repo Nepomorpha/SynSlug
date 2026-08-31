@@ -1,0 +1,20 @@
+
+chr_sizes = "example_data/chr_sizes.tsv"
+chain = ["spA", "spB", "spC"]
+focal = "spA"
+
+sort = "synteny"
+link_alpha = 0.4
+half_width = 150000
+highlight_chrs = ["A2"]
+
+chr_label = true
+chr_label_style = "name"
+
+fig_width = 12
+out = "my_plot_highlight.png"
+dpi = 150
+
+[links]
+spA_spB = "example_data/links_spA_spB.tsv"
+spB_spC = "example_data/links_spB_spC.tsv"

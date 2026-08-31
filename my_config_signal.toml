@@ -1,0 +1,30 @@
+
+chr_sizes = "example_data/chr_sizes.tsv"
+chain = ["spA", "spB", "spC"]
+focal = "spA"
+colors_tsv = "example_data/colors_demo.tsv"
+
+sort = "synteny"
+link_alpha = 0.3
+half_width = 150000
+
+chr_label = true
+chr_label_style = "name"
+bar_height = 0.08
+
+bedgraph_cmap = "viridis"
+bedgraph_label = "signal"
+
+fig_width = 12
+fig_height = 6
+out = "my_plot_signal.png"
+dpi = 150
+
+[bedgraph]
+spA = "example_data/signal_spA.bedgraph"
+spB = "example_data/signal_spB.bedgraph"
+spC = "example_data/signal_spC.bedgraph"
+
+[links]
+spA_spB = "example_data/links_spA_spB.tsv"
+spB_spC = "example_data/links_spB_spC.tsv"
