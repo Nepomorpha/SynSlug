@@ -1,4 +1,20 @@
-"""A collection of functions for parsing/reading of input data etc"""
+"""
+
+Program     : SynViser, synteny visualisation tool.
+Language    : Python
+Authors     : Yehor Tertyshnyk, Mirela Krol
+Email       : egor.tertyshnyk@gmail.com
+Github      : https://github.com/Nepomorpha/SynViser
+License     : MIT
+Citation    : -TBS-
+
+Description : A collection of functions for parsing/reading of input data etc
+
+Usage
+instructions: see -TBS-
+
+"""
+
 
 import os
 import pandas as pd
