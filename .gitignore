@@ -11,3 +11,7 @@ __pycache__/
 
 # ???? 
 .DS_Store
+landscapes_blocks.tsv
+landscapes_colors.tsv
+kept_colors.tsv
+kept_report.tsv
