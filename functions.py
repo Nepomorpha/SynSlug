@@ -22,7 +22,7 @@ from orthofinder import load_orthofinder
 DEFAULTS = {
     "links": {},                # [links] table: '<spA>_<spB>' = path, one per adjacent pair
     "chr_sizes": None,          # chromosome sizes TSV (optional in OrthoFinder mode)
-    "orthogroups": None,        # OrthoFinder Orthogroups.tsv           (OrthoFinder mode)
+    "orthogroups": None,        # OrthoFinder Orthogroups.tsv
     "gff": {},                  # species -> GFF path                   (OrthoFinder mode)
     "max_copies": 0,            # skip orthogroups with > this many located genes in a species (0 = off)
     "tracks": [],               # [[tracks]] list: extra bed/histogram lanes below/above a species
