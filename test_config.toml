@@ -1,0 +1,15 @@
+
+chr_sizes = "example_data/chr_sizes.tsv"
+chain = ["spA", "spB", "spC"]
+focal = "spA"
+
+sort = "synteny"
+chr_label = true
+chr_label_style = "name"
+
+out = "test_plot.png"
+dpi = 150
+
+[links]
+spA_spB = "example_data/links_spA_spB.tsv"
+spB_spC = "example_data/links_spB_spC.tsv"
