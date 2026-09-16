@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Dot plot of orthologs between one chromosome of each species. For finding Ortho-Chr use heatmap.R. 
 Usage:
-    python dotplot.py config.toml SPECIES_A SPECIES_B CHR_A CHR_B [out.png]
+    python scripts/dotplot.py config.toml SPECIES_A SPECIES_B CHR_A CHR_B [out.png]
 
 Each dot is one orthologous gene pair, at its position on CHR_A (x) and CHR_B (y). There is also spearman correlation which suppose to indicate level of colinearity. 
 """
@@ -13,11 +13,11 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import functions
 
 if len(sys.argv) < 6:
-    print("usage: python dotplot.py config.toml SPECIES_A SPECIES_B CHR_A CHR_B [out.png]")
+    print("usage: python scripts/dotplot.py config.toml SPECIES_A SPECIES_B CHR_A CHR_B [out.png]")
     sys.exit(1)
 
 config_path = sys.argv[1]

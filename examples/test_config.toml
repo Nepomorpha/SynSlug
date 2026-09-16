@@ -1,5 +1,5 @@
 
-chr_sizes = "example_data/chr_sizes.tsv"
+chr_sizes = "../example_data/chr_sizes.tsv"
 chain = ["spA", "spB", "spC"]
 focal = "spA"
 
@@ -11,5 +11,5 @@ out = "test_plot.png"
 dpi = 150
 
 [links]
-spA_spB = "example_data/links_spA_spB.tsv"
-spB_spC = "example_data/links_spB_spC.tsv"
+spA_spB = "../example_data/links_spA_spB.tsv"
+spB_spC = "../example_data/links_spB_spC.tsv"

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # This is a supplementary script aim to help you identify orthologous Chr for further analysis. You would firstly need to run export.py.
 # Usage: 
-#   python ortho_heatmap.py A_B_matrix.tsv [out.png]
+#   python scripts/ortho_heatmap.py A_B_matrix.tsv [out.png]
 #
 # Rows and columns are clustered so orthologous Chr arranges. 
 
@@ -16,7 +16,7 @@ import seaborn as sns
 
 # args ----------
 if len(sys.argv) < 2:
-    print("usage: python ortho_heatmap.py links.tsv [out.png]")
+    print("usage: python scripts/ortho_heatmap.py links.tsv [out.png]")
     sys.exit(1)
 
 link_file = sys.argv[1]

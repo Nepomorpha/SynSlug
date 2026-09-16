@@ -1,5 +1,5 @@
 
-orthogroups = "example_data/orthogroups_demo.tsv"
+orthogroups = "../example_data/orthogroups_demo.tsv"
 chain = ["spA", "spB", "spC"]
 focal = "spA"
 max_copies = 1
@@ -12,6 +12,6 @@ out = "my_plot_orthofinder.png"
 dpi = 150
 
 [gff]
-spA = "example_data/gff_spA.gff"
-spB = "example_data/gff_spB.gff"
-spC = "example_data/gff_spC.gff"
+spA = "../example_data/gff_spA.gff"
+spB = "../example_data/gff_spB.gff"
+spC = "../example_data/gff_spC.gff"

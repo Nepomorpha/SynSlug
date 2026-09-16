@@ -4,7 +4,7 @@
 # Compare chromosomes from every species with the focal species.
 #
 # Usage:
-#   python chromosome_orthologs.py config.toml [out.png]
+#   python scripts/chromosome_orthologs.py config.toml [out.png]
 #
 # This uses the OrthoFinder and GFF files taht you would use for normal SynViser run.
 # Unlike the main SynViser program, this script also needs seaborn and scipy.
@@ -19,14 +19,14 @@ import pandas as pd
 import seaborn as sns
 from scipy.spatial.distance import cdist
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from functions import read_config
 from loaders import read_chr_sizes
 from orthofinder import read_gff_positions, read_orthogroups
 
 
 if len(sys.argv) < 2:
-    print("usage: python chromosome_orthologs.py config.toml [out.png]")
+    print("usage: python scripts/chromosome_orthologs.py config.toml [out.png]")
     sys.exit(1)
 
 config_path = sys.argv[1]

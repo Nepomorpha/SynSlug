@@ -3,7 +3,7 @@
 This script produces the plot showing the distance change between two orthogroups across all genomes from config. 
 It is helpful for validating syntenically linked genes found by syn_blocks and similar scripts. Or just to validate what we visually see on ribbon plot. 
 
-    python gene_distance.py config.toml GENE1 GENE2 [out.png]
+    python scripts/gene_distance.py config.toml GENE1 GENE2 [out.png]
 
 """
 
@@ -15,13 +15,13 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import pandas as pd
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import functions
 
 MB = 1_000_000 # I prefer it displaying in MB
 
 if len(sys.argv) < 4:
-    print("usage: python gene_distance.py config.toml GENE1 GENE2 [out.png]")
+    print("usage: python scripts/gene_distance.py config.toml GENE1 GENE2 [out.png]")
     sys.exit(1)
 
 config_path, gene1, gene2 = sys.argv[1], sys.argv[2], sys.argv[3]

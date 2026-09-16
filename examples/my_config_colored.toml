@@ -1,8 +1,8 @@
 
-chr_sizes = "example_data/chr_sizes.tsv"
+chr_sizes = "../example_data/chr_sizes.tsv"
 chain = ["spA", "spB", "spC"]
 focal = "spA"
-colors_tsv = "example_data/colors_demo.tsv"
+colors_tsv = "../example_data/colors_demo.tsv"
 
 sort = "synteny"
 link_alpha = 0.35
@@ -24,5 +24,5 @@ spB = "Species B"
 spC = "Species C"
 
 [links]
-spA_spB = "example_data/links_spA_spB.tsv"
-spB_spC = "example_data/links_spB_spC.tsv"
+spA_spB = "../example_data/links_spA_spB.tsv"
+spB_spC = "../example_data/links_spB_spC.tsv"
