@@ -4,16 +4,17 @@
 
 Program     : SynViser, synteny visualisation tool.
 Language    : Python
-Authors      : Yehor Tertyshnyk, Mirela Krol
+Authors     : Yehor Tertyshnyk, Mirela Krol
 Email       : egor.tertyshnyk@gmail.com
 Github      : https://github.com/Nepomorpha/SynViser
-License     : ?--?
+License     : MIT License
 Citation    : -TBS-
 
-Description : This program is designed to take various inputs and produce synteny plots.
+Description : This program is designed to take various inputs from config files and produce synteny plots.
 
-Usage
-instructions: see -TBS-
+Usage:         python synviser.py config.toml
+
+Instructions: see README.md or dedicated .ipynb notebooks for more details.
 
 """
 
@@ -26,12 +27,18 @@ def main():
     if len(sys.argv) < 2:
         print("usage: python synviser.py config.toml [config2.toml ...]")
         sys.exit(1)
+    failed = False 
     for config_path in sys.argv[1:]:
         try:
             plot(config_path)
         except Exception as exc:
-            print(f"ERROR in {config_path}: {exc}", file=sys.stderr)
-    print("that's it!")
+            failed = True
+            print(f"error in {config_path}: {exc}",file=sys.stderr)
+
+    if failed:
+        sys.exit(1)
+
+    print("plotting is done!")
 
 
 
