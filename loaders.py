@@ -10,9 +10,6 @@ Citation    : -TBS-
 
 Description : A collection of functions for parsing/reading of input data etc
 
-Usage
-instructions: see -TBS-
-
 """
 
 
