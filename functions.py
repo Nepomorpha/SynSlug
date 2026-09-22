@@ -699,7 +699,11 @@ def _sweep_right(chain, focal_i, focal, focal_colors, links_by_pair, known, defa
                 color = focal_colors.get(chr1, default_color)
             else:
                 color = known[upper].get(str(gene1), default_color)
-            known[lower][str(gene2)] = color
+            gene2 = str(gene2)
+            if gene2 in known[lower] and known[lower][gene2] != color:
+                known[lower][gene2] = default_color
+            else:
+                known[lower][gene2] = color
             colors.append(color)
         links["color"] = colors
 
@@ -714,7 +718,11 @@ def _sweep_left(chain, focal_i, focal, focal_colors, links_by_pair, known, defau
                 color = focal_colors.get(chr2, default_color)
             else:
                 color = known[lower].get(str(gene2), default_color)
-            known[upper][str(gene1)] = color
+            gene1 = str(gene1)
+            if gene1 in known[upper] and known[upper][gene1] != color:
+                known[upper][gene1] = default_color
+            else:
+                known[upper][gene1] = color
             colors.append(color)
         links["color"] = colors
 
