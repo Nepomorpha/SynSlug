@@ -220,6 +220,24 @@ def read_bed(path):
     return df[["chrom", "start", "end"]] 
 
 
+def read_bedpe(path):
+    """Read the first 6 BEDPE columns, one same-chromosome loop per row."""
+    df = pd.read_csv(path, sep="\t", header=None, comment="#", dtype=str, skiprows=_n_header_lines(path))
+    if df.shape[1] < 6:
+        raise ValueError(f"{path}: loops need 6 columns: chr1, start1, end1, chr2, start2, end2")
+    df = df.iloc[:, :6].copy()
+    df.columns = ["chr1", "start1", "end1", "chr2", "start2", "end2"]
+    if df.isna().any().any():
+        raise ValueError(f"{path}: loop anchors cannot be empty")
+    for col in ["start1", "end1", "start2", "end2"]:
+        df[col] = df[col].astype(int)
+    if (df.chr1 != df.chr2).any():
+        raise ValueError(f"{path}: both loop anchors must be on the same chromosome")
+    if (df.start1 < 0).any() or (df.start2 < 0).any() or (df.end1 <= df.start1).any() or (df.end2 <= df.start2).any():
+        raise ValueError(f"{path}: loop intervals need 0 <= start < end")
+    return df
+
+
 def load_tracks(cfg, chain):
     tracks_for = {}
 
@@ -232,13 +250,15 @@ def load_tracks(cfg, chain):
 
         if "type" in track:
             track_type = track["type"]
+        elif path.lower().endswith(".bedpe"):
+            track_type = "loop"
         elif path.lower().endswith(".bed"):
             track_type = "bed"
         else:
             track_type = "hist"
 
-        if track_type != "bed" and track_type != "hist":
-            raise ValueError("track type must be 'bed' or 'hist'")
+        if track_type not in ("bed", "hist", "loop", "tad"):
+            raise ValueError("track type must be 'bed', 'hist', 'loop' or 'tad'")
 
         if "where" in track:
             where = track["where"]
@@ -258,8 +278,10 @@ def load_tracks(cfg, chain):
         else:
             label = ""
 
-        if track_type == "bed":
+        if track_type == "bed" or track_type == "tad":
             data = read_bed(path)
+        elif track_type == "loop":
+            data = read_bedpe(path)
         else:
             data = read_bedgraph(path)
 
@@ -272,6 +294,8 @@ def load_tracks(cfg, chain):
             "label": label,
             "where": where,
             "data": data,
+            "lw": track.get("lw", 1.0),
+            "ls": track.get("ls", "-"),
         })
 
     return tracks_for

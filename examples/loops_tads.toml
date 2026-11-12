@@ -1,0 +1,30 @@
+chr_sizes = "../example_data/chr_sizes.tsv"
+chain = ["spA", "spB", "spC"]
+focal = "spA"
+sort = "synteny"
+chr_label = true
+chr_label_style = "name"
+chr_label_pos = "inside"
+track_height = 0.18
+out = ["plot_loops.png", "plot_loops.svg"]
+dpi = 150
+
+[links]
+spA_spB = "../example_data/links_spA_spB.tsv"
+spB_spC = "../example_data/links_spB_spC.tsv"
+
+[[tracks]]
+species = "spA"
+type = "loop"
+file = "../example_data/loops_spA_demo.bedpe"
+where = "above"
+color = "#333333"
+lw = 1.0
+ls = "-"
+
+[[tracks]]
+species = "spA"
+type = "tad"
+file = "../example_data/tads_spA_demo.bed"
+where = "below"
+color = "#cbd5df"

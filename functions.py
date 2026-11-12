@@ -13,7 +13,7 @@ from matplotlib.cm import ScalarMappable
 from matplotlib.collections import PatchCollection
 from matplotlib.colors import to_hex, to_rgba, Normalize
 from matplotlib.path import Path
-from matplotlib.patches import PathPatch, Rectangle, Patch
+from matplotlib.patches import PathPatch, Rectangle, Patch, Arc, Polygon
 
 from loaders import read_chr_sizes, read_colors, read_bedgraph, read_name_map, read_highlight_links, load_links, load_tracks
 from orthofinder import load_orthofinder
@@ -25,7 +25,7 @@ DEFAULTS = {
     "orthogroups": None,        # OrthoFinder Orthogroups.tsv
     "gff": {},                  # species -> GFF path                   (OrthoFinder mode)
     "max_copies": 0,            # skip orthogroups with > this many located genes in a species (0 = off)
-    "tracks": [],               # [[tracks]] list: extra bed/histogram lanes below/above a species
+    "tracks": [],               # [[tracks]] list: bed, hist, loop or tad lanes above/below a species
     "track_height": 0.18,       # height of one track lane (track units)
     "bedgraph": {},             # species -> .bedgraph path; colours chromosome bars by signal
     "bedgraph_cmap": "viridis",  # colormap for the bedgraph signal
@@ -430,7 +430,7 @@ def _x_of(track, chrom, pos, scale):
 
 
 def track_patches(trk, track, scale, in_view, lane_h, y_center):
-    # bed -> boxes, bedgraph -> a histogram (bar height scaled to the max value)
+    # BED boxes, BEDPE loop arcs, BED TAD triangles, or a bedgraph histogram.
     data, color = trk["data"], trk["color"]
     patches = []
     if trk["type"] == "bed":
@@ -438,6 +438,36 @@ def track_patches(trk, track, scale, in_view, lane_h, y_center):
             if chrom in in_view:
                 x0, x1 = _x_of(track, chrom, start, scale), _x_of(track, chrom, end, scale)
                 patches.append(Rectangle((x0, y_center - lane_h / 2), max(x1 - x0, 0), lane_h, facecolor=color, edgecolor="none"))
+    elif trk["type"] == "loop":
+        y = y_center - lane_h / 2
+        a1, a2 = 0, 180
+        if trk["where"] == "below":
+            y = y_center + lane_h / 2
+            a1, a2 = 180, 360
+        for i in data.index:
+            c = data.chr1[i]
+            if c not in in_view:
+                continue
+            p1 = (data.start1[i] + data.end1[i]) / 2
+            p2 = (data.start2[i] + data.end2[i]) / 2
+            x1 = _x_of(track, c, p1, scale)
+            x2 = _x_of(track, c, p2, scale)
+            # Arc takes the whole ellipse height; we draw only half.
+            patches.append(Arc(((x1 + x2) / 2, y), abs(x2 - x1), 2 * lane_h,
+                               theta1=a1, theta2=a2, color=color, lw=trk["lw"], ls=trk["ls"]))
+    elif trk["type"] == "tad":
+        y = y_center - lane_h / 2
+        tip = y + lane_h
+        if trk["where"] == "below":
+            y = y_center + lane_h / 2
+            tip = y - lane_h
+        for c, start, end in zip(data.chrom, data.start, data.end):
+            if c not in in_view:
+                continue
+            x1 = _x_of(track, c, start, scale)
+            x2 = _x_of(track, c, end, scale)
+            patches.append(Polygon([(x1, y), ((x1 + x2) / 2, tip), (x2, y)],
+                                   facecolor=color, edgecolor="none"))
     else:                                              # histogram from a bedgraph
         vmax = data["value"].max() or 1.0
         base = y_center - lane_h / 2
