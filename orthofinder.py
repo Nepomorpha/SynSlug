@@ -1,6 +1,8 @@
 """Builds synteny links from OrthoFinder output (Orthogroups.tsv + per-species GFFs)"""
 
+import gzip
 import pandas as pd
+import pysam
 from loaders import read_chr_sizes
 
 
@@ -11,14 +13,22 @@ def _check_species_columns(gene_og, chain, orthogroups_path):
 
 
 def _resolve_chr_sizes(cfg, chain, gff_sizes):
-    # real GFF sizes
-    if cfg["chr_sizes"]:
-        return read_chr_sizes(cfg["chr_sizes"]) 
+    sizes = dict(gff_sizes)
+    for sp, path in cfg.get("genomes", {}).items():
+        sizes[sp] = {}
+        with pysam.FastxFile(path) as fasta:
+            for seq in fasta:
+                sizes[sp][seq.name] = len(seq.sequence)
+    if cfg.get("chr_sizes"):
+        sizes.update(read_chr_sizes(cfg["chr_sizes"]))
 
-    no_size = [sp for sp in chain if not gff_sizes[sp]]
+    no_size = []
+    for sp in chain:
+        if not sizes.get(sp):
+            no_size.append(sp)
     if no_size:
-        raise ValueError(f"no chr_sizes for {no_size}: here its either their GFF has no '##sequence-region' lines (typical for miniprot output), so real chromosome sizes are not in file. Add chr_sizes = \"...\" to the config, for these species.")
-    return gff_sizes
+        raise ValueError(f"no chromosome lengths for {no_size}: add their genome FASTA paths under [genomes], or provide a chr_sizes TSV")
+    return sizes
 
 def load_orthofinder(cfg, chain):
     """Build chr_sizes + per pair link tables from orthofinder output and GFFs"""
@@ -29,11 +39,19 @@ def load_orthofinder(cfg, chain):
     positions, gff_sizes = {}, {}
     for sp in chain:
         positions[sp], gff_sizes[sp] = read_gff_positions(cfg["gff"][sp])
-        print(f"  {sp}: {len(positions[sp]):,} proteins located from gff")
+        n = 0
+        for gene in gene_og[sp]:
+            if gene in positions[sp]:
+                n += 1
+        print(f"  {sp}: {n:,} of {len(gene_og[sp]):,} orthogroup proteins matched to GFF")
+        if n == 0:
+            raise ValueError(f"{sp}: no OrthoFinder protein IDs match the GFF. Check that the proteins and annotation are from the same gene set.")
 
     links_by_pair = build_orthofinder_links(chain, gene_og, positions, cfg["max_copies"])
     for (a, b), df in links_by_pair.items():
         print(f"  {a}-{b}: {len(df):,} gene-pair links")
+        if df.empty:
+            raise ValueError(f"no gene-pair links for {a}-{b}: check the protein IDs and max_copies setting")
 
     chr_sizes = _resolve_chr_sizes(cfg, chain, gff_sizes)
     return chr_sizes, links_by_pair 
@@ -41,7 +59,8 @@ def load_orthofinder(cfg, chain):
 
 def read_orthogroups(path):
     """Orthogroups.tsv -> {species: {gene_id: orthogroup}}."""
-    df = pd.read_csv(path, sep="\t", dtype=str).fillna("")
+    df = pd.read_csv(path, sep="\t", dtype=str)
+    df = df.fillna("")
     species = [c for c in df.columns if c != "Orthogroup"]     # rest of the columns are species
     gene_og = {sp: {} for sp in species} 
     for row in df.itertuples(index=False):
@@ -53,57 +72,77 @@ def read_orthogroups(path):
     return gene_og
 
 
-def _gene_positions_from_cds(cds):
-    grp = cds.groupby("gene")
-    chrom = grp["seqid"].first()
-    midpoint = (grp["start"].min() + grp["end"].max()) // 2
-    positions = {}
-    for gene in chrom.index:
-        positions[gene] = (chrom[gene], int(midpoint[gene]))
-    return positions
-
-
-def _sequence_region_sizes(path):
-    # NCBI has ##sequence-region lines through the file (one before each sequence's
-    # features), so we just scan the whole thing rather than only the header block
+def read_gff_positions(path):
+    """gff -> ids, positions, chr sizes"""
+    path = str(path)
+    cds = {}
+    versions = {}
     sizes = {}
-    with open(path) as fh:
+
+    if path.endswith((".gz", ".bgz")):
+        fh = gzip.open(path, "rt")
+    else:
+        fh = open(path)
+
+    with fh:
         for line in fh:
             if line.startswith("##sequence-region"):
-                _, name, _start, end = line.split()
-                sizes[name] = int(end)
-    return sizes
+                row = line.split()
+                sizes[row[1]] = int(row[3])
+                continue
+            if line.startswith("##FASTA"):
+                break
+            if line.startswith("#"):
+                continue
 
+            row = line.rstrip().split("\t")
+            if len(row) != 9:
+                continue
+            if row[2].upper() != "CDS":
+                continue
 
-def read_gff_positions(path):
-    """GFF (NCBI or miniprot) -> ({gene_id: (chr, midpoint)}, {chr: size}).Position is the midpoint of the CDS span.
+            chrom = row[0]
+            start = int(row[3])
+            end = int(row[4])
 
-    Sizes come ONLY from ##sequence-region lines. note: miniprot GFFs don't have them -> diff handling is needed. (applied?)
-    """
-    cols = ["seqid", "source", "type", "start", "end", "attr"]
-    gff = pd.read_csv(path, sep="\t", comment="#", header=None, usecols=[0, 1, 2, 3, 4, 8], names=cols, dtype=str, on_bad_lines="skip")        # tolerate odd/tral lines
-    gff = gff.dropna(subset=["seqid", "type", "start", "end"])
-    gff["start"] = gff["start"].astype(int)
-    gff["end"] = gff["end"].astype(int)
+            # last col, protein_id=P1;version=1
+            attrs = {}
+            for entry in row[8].split(";"):
+                if "=" in entry:
+                    key, value = entry.split("=", 1)
+                    attrs[key.strip()] = value.strip()
 
-    miniprot = (gff["source"] == "miniprot").any()
-    cds = gff[gff["type"] == "CDS"].copy()
+            if attrs.get("Target"):
+                if "rank" in attrs and attrs["rank"] != "1":
+                    continue
+                gene = attrs["Target"].split()[0]
+            elif attrs.get("protein_id"):
+                gene = attrs["protein_id"]
+                if attrs.get("version"):
+                    version = attrs["version"]
+                    if not gene.endswith("." + version):
+                        versions[gene + "." + version] = gene
+            elif attrs.get("Parent"):
+                gene = attrs["Parent"]
+            else:
+                continue
 
-  # in case if Orthogroups/GFFs were obtained with miniprot/AGAT pipeline there was a problem with readability, including upper/lowercase in CDS. 
-  # Thats how this block of code was introduced. 
-    if cds["attr"].str.contains("Target=").any():
-        keep = ~cds["attr"].str.contains("rank=") | cds["attr"].str.contains(r"rank=1(?:;|$)")
-        cds = cds[keep].copy()
-        cds["gene"] = cds["attr"].str.extract(r"Target=([^;\s]+)")
-    elif miniprot:
-        cds["gene"] = cds["attr"].str.extract(r"Parent=([^;]+)")
-    else:
-        cds["gene"] = cds["attr"].str.extract(r"protein_id=([^;]+)")
+            # CDS span
+            if gene not in cds:
+                cds[gene] = [chrom, start, end]
+            else:
+                cds[gene][1] = min(cds[gene][1], start)
+                cds[gene][2] = max(cds[gene][2], end)
 
-    cds = cds.dropna(subset=["gene"]) 
+    positions = {}
+    for gene, span in cds.items():
+        chrom, start, end = span
+        positions[gene] = (chrom, (start + end) // 2)
 
-    positions = _gene_positions_from_cds(cds)
-    sizes = _sequence_region_sizes(path)
+    # P1 and P1.1
+    for name, gene in versions.items():
+        positions[name] = positions[gene]
+
     return positions, sizes
 
 

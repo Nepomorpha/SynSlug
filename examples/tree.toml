@@ -1,0 +1,30 @@
+chr_sizes = "../example_data/chr_sizes.tsv"
+chain = ["spA", "spB", "spC"]
+focal = "spA"
+
+# Tip names match chain. Extra species are hidden; branch lengths are not used.
+tree = "../example_data/species_demo.nwk"
+
+sort = "synteny"
+chr_label = true
+chr_label_style = "name"
+chr_label_pos = "inside"
+out = ["plot_tree.png", "plot_tree.svg"]
+dpi = 150
+
+[links]
+spA_spB = "../example_data/links_spA_spB.tsv"
+spB_spC = "../example_data/links_spB_spC.tsv"
+
+# Unequal row spacing to show that tree tips still align.
+[[tracks]]
+species = "spA"
+type = "loop"
+file = "../example_data/loops_spA_demo.bedpe"
+where = "below"
+
+[[tracks]]
+species = "spB"
+type = "hist"
+file = "../example_data/signal_spB.bedgraph"
+where = "above"
