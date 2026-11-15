@@ -21,7 +21,8 @@ from scipy.spatial.distance import cdist
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from functions import read_config
-from orthofinder import read_gff_positions, read_orthogroups, _resolve_chr_sizes
+from loaders import read_chr_sizes
+from orthofinder import read_gff_positions, read_orthogroups
 
 
 if len(sys.argv) < 2:
@@ -50,7 +51,8 @@ chr_sizes = {}
 for species in chain:
     positions[species], chr_sizes[species] = read_gff_positions(cfg["gff"][species])
 
-chr_sizes = _resolve_chr_sizes(cfg, chain, chr_sizes)
+if cfg["chr_sizes"]:
+    chr_sizes = read_chr_sizes(cfg["chr_sizes"])
 
 rows = []
 
