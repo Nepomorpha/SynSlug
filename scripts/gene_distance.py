@@ -13,10 +13,10 @@ import sys
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-import pandas as pd
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import functions
+from orthofinder import read_orthogroups, read_gff_positions, _resolve_chr_sizes
 
 MB = 1_000_000 # I prefer it displaying in MB
 
@@ -36,21 +36,46 @@ chain = cfg["chain"]
 
 
 
+genes = {}
+many = []
+
 if cfg["orthogroups"]:
-    chr_sizes, links_by_pair = functions.load_orthofinder(cfg, chain)
+    # OG ids
+    ogs = read_orthogroups(cfg["orthogroups"])
+    sizes = {}
+    for sp in chain:
+        pos, sizes[sp] = read_gff_positions(cfg["gff"][sp])
+        for og in (gene1, gene2):
+            ids = []
+            for gene, group in ogs[sp].items():
+                if group == og:
+                    ids.append(gene)
+
+            if len(ids) > 1:
+                many.append((sp, og))
+            elif len(ids) == 1:
+                gene = ids[0]
+                if gene in pos:
+                    genes[(sp, og)] = pos[gene]
+    chr_sizes = _resolve_chr_sizes(cfg, chain, sizes)
 else:
+    # gene ids
     chr_sizes = functions.read_chr_sizes(cfg["chr_sizes"])
-    links_by_pair = functions.load_links(cfg, chr_sizes, chain)
+    links = functions.load_links(cfg, chr_sizes, chain)
+    for (a, b), df in links.items():
+        for _, row in df.iterrows():
+            if (a, row["gene1"]) not in genes:
+                genes[(a, row["gene1"])] = (row["chr1"], row["pos1"])
+            if (b, row["gene2"]) not in genes:
+                genes[(b, row["gene2"])] = (row["chr2"], row["pos2"])
 
-sides = []
-
-
-
-for (a, b), df in links_by_pair.items():
-    sides.append(pd.DataFrame({"species": a, "gene": df["gene1"], "chr": df["chr1"], "pos": df["pos1"]}))
-    sides.append(pd.DataFrame({"species": b, "gene": df["gene2"], "chr": df["chr2"], "pos": df["pos2"]}))
-
-genes = pd.concat(sides).drop_duplicates(["species", "gene"]).set_index(["species", "gene"])
+for gene in (gene1, gene2):
+    found = False
+    for sp in chain:
+        if (sp, gene) in genes or (sp, gene) in many:
+            found = True
+    if not found:
+        raise ValueError(f"{gene}: not found in the selected species")
 
 print(f"{'species':<16}{'chr ' + gene1:>20}{'chr ' + gene2:>20}{'distance (Mb)':>16}")
 
@@ -61,15 +86,25 @@ points = []
 
 for sp in chain:
     label = cfg["labels"].get(sp, sp)
-    here1 = (sp, gene1) in genes.index
-    here2 = (sp, gene2) in genes.index
+    here1 = (sp, gene1) in genes
+    here2 = (sp, gene2) in genes
 
-    chr1 = genes.loc[(sp, gene1), "chr"] if here1 else "-"
-    chr2 = genes.loc[(sp, gene2), "chr"] if here2 else "-"
+    chr1 = "-"
+    chr2 = "-"
+    if (sp, gene1) in many:
+        chr1 = "multiple"
+    elif here1:
+        chr1 = genes[(sp, gene1)][0]
+    if (sp, gene2) in many:
+        chr2 = "multiple"
+    elif here2:
+        chr2 = genes[(sp, gene2)][0]
 
     distance = "-"
     if here1 and here2 and chr1 == chr2:
-        mb = abs(genes.loc[(sp, gene1), "pos"] - genes.loc[(sp, gene2), "pos"]) / MB
+        pos1 = genes[(sp, gene1)][1]
+        pos2 = genes[(sp, gene2)][1]
+        mb = abs(pos1 - pos2) / MB
         distance = f"{mb:.2f}"
         points.append((mb, chr_sizes[sp][chr1] / MB, label))
 

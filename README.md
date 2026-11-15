@@ -22,8 +22,12 @@ SynViser requires Python 3.11 or newer.
 ```
 git clone https://github.com/Nepomorpha/SynViser.git
 cd SynViser
-pip install -r requirements.txt
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
 ```
+
+When opening a new terminal, run `source .venv/bin/activate` from this folder before using SynViser.
 
 ## Quick start
 Run one of examples:
@@ -51,3 +55,16 @@ python scripts/add_gene_names.py < old_links.tsv > links.tsv
 ```
 
 The generated ID is `chromosome:position`. Use real gene IDs when available.
+
+## OrthoFinder annotations
+
+Use proteins and GFFs from the same annotation release. SynViser reads NCBI protein IDs, Ensembl protein versions, BRAKER transcript IDs and miniprot targets. GFF files can be plain text or gzip compressed.
+
+Some GFFs have no chromosome lengths. Add a matching genome FASTA after your other config settings:
+
+```toml
+[genomes]
+my_species = "genome.fa.gz"
+```
+
+Use the species name from `chain`. FASTA sequence names must match the GFF chromosome names. Plain or gzip-compressed FASTA works; SynViser reads the full sequence lengths without an index. A `chr_sizes` TSV can also supply lengths, including for just the species missing them from the GFF.
