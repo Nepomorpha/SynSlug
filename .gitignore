@@ -17,3 +17,5 @@ kept_colors.tsv
 kept_report.tsv
 example_data/*.fa.gz.fai
 example_data/*.fa.gz.gzi
+
+.venv/

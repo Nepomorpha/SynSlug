@@ -20,50 +20,53 @@ from orthofinder import load_orthofinder
 
 # Defaults for everything a config does not set.
 DEFAULTS = {
-    "links": {},                # [links] table: '<spA>_<spB>' = path, one per adjacent pair
-    "chr_sizes": None,          # chromosome sizes TSV (optional in OrthoFinder mode)
-    "orthogroups": None,        # OrthoFinder Orthogroups.tsv
-    "gff": {},                  # species -> GFF path                   (OrthoFinder mode)
-    "max_copies": 0,            # skip orthogroups with > this many located genes in a species (0 = off)
-    "tracks": [],               # [[tracks]] list: bed, hist, loop or tad lanes above/below a species
-    "track_height": 0.18,       # height of one track lane (track units)
-    "bedgraph": {},             # species -> .bedgraph path; colours chromosome bars by signal
-    "bedgraph_cmap": "viridis",  # colormap for the bedgraph signal
-    "bedgraph_vmin": None,      # signal value mapped to the low end of the colormap (default: data min)
-    "bedgraph_vmax": None,      # signal value mapped to the high end (default: data max)
-    "bedgraph_label": "",       # tiny legend title
-    "sort": "input",            # input | name | name_reverse | size | synteny
-    "min_links": 0,             # drop chromosomes with fewer coloured links (0 = keep all)
-    "min_chr_size": 0,          # remove chromosomes shorter than this many bp (0 = keep all)
-    "max_links": 2000,          # number of links kept from the group selected below
-    "max_links_mode": "grey",  # all = cap all links; grey = cap only grey links
-    "link_alpha": 0.2,
-    "half_width": 5000,         # bp; each ribbon foot spans pos +/- half_width
-    "min_ribbon": 0.0006,       # minimum ribbon foot half-width (axis units), keeps links visible
-    "min_bar_width": 0.01,      # minimum chromosome bar width (axis units), keeps tiny chromosomes visible
-    "default_color": "#e3e3e3",  # links that don't trace back to the focal species
-    "drop_grey": False,         # if true, don't draw links that didn't reach the focal species
-    "chr_label": False,
+    "links": {},                  # [links] table: '<spA>_<spB>' = path, one per adjacent pair
+    "chr_sizes": None,            # chromosome sizes TSV (optional in OrthoFinder mode)
+    "orthogroups": None,          # OrthoFinder Orthogroups.tsv
+    "gff": {},                    # species -> GFF path                   (OrthoFinder mode)
+    "genomes": {},                # genome fasta
+    "max_copies": 0,              # skip orthogroups with > this many located genes in a species (0 = off)
+    "tracks": [],                 # [[tracks]] list: bed, hist, loop or tad lanes above/below a species
+    "track_height": 0.18,         # height of one track lane (track units)
+    "tree": None,                 # If you have a Newick tree you can draw it next to genomes. (It must have species names matching the genome rows)
+    "bedgraph": {},               # species -> .bedgraph path; colours chromosome bars by signal
+    "bedgraph_cmap": "viridis",   # colormap for the bedgraph signal
+    "bedgraph_vmin": None,        # signal value mapped to the low end of the colormap (default: data min)
+    "bedgraph_vmax": None,        # signal value mapped to the high end (default: data max)
+    "bedgraph_label": "",         # tiny legend title
+    "sort": "input",              # input | name | name_reverse | size | synteny
+    "min_links": 0,               # drop chromosomes with fewer coloured links (0 = keep all)
+    "min_chr_size": 0,            # remove chromosomes shorter than this many bp (0 = keep all)
+    "normalise_chrs": False,      # draw all chromosomes at the same width
+    "max_links": 2000,            # number of links kept from the group selected below
+    "max_links_mode": "grey",     # all = cap all links; grey = cap only grey links
+    "link_alpha": 0.2,            # transparency of the ribbons (0 = invisible, 1 = opaque)
+    "half_width": 5000,           # bp; each ribbon foot spans pos +/- half_width
+    "min_ribbon": 0.0006,         # minimum ribbon foot half-width (axis units), keeps links visible
+    "min_bar_width": 0.01,        # minimum chromosome bar width (axis units), keeps tiny chromosomes visible
+    "default_color": "#e3e3e3", # links that don't trace back to the focal species
+    "drop_grey": False,           # if true, don't draw links that didn't reach the focal species
+    "chr_label": False,           # draw chromosome labels (numbers or names) above the bars
     "chr_label_style": "number",  # number | name | short
-    "chr_label_size": 6,
-    "chr_label_pos": "above",   # "above" the bar, or "inside" (centred on the bar)
-    "chr_label_color": "black",  # chromosome label colour
-    "chr_names_tsv": None,      # TSV/CSV: real_name -> display_name for chromosome labels
+    "chr_label_size": 8,          # chromosome label font size
+    "chr_label_pos": "above",     # "above" the bar, or "inside" (centred on the bar)
+    "chr_label_color": "black",   # chromosome label colour
+    "chr_names_tsv": None,        # TSV/CSV: real_name -> display_name for chromosome labels
     "bar_color": "#bdbdbd",     # default chromosome bar colour
-    "chr_colors_tsv": None,     # TSV: chromosome -> bar colour (overrides bar_color per chr)
-    "scale_bar_mb": 0,          # draw a reference scale bar this many Mb long (0 = off)
-    "highlight_chrs": [],       # highlight mode: colour only these chromosomes' synteny, rest grey
+    "chr_colors_tsv": None,       # TSV: chromosome -> bar colour (overrides bar_color per chr)
+    "scale_bar_mb": 0,            # draw a reference scale bar this many Mb long (0 = off)
+    "highlight_chrs": [],         # highlight mode: colour only these chromosomes' synteny, rest grey
     "highlight_links_tsv": None,  # TSV: link id -> colour [-> label]; draws those links on top
     "highlight_legend": False,    # show a legend of the highlighted-link colours
-    "highlight_legend_title": "",
-    "grey_alpha": None,         # alpha for grey links (default: same as link_alpha)
-    "bar_height": 0.05,         # thickness of a chromosome bar (track units)
-    "space": 0.004,             # gap between chromosomes, as a fraction of the widest genome
-    "fig_width": 12.0,          # figure width in inches
-    "fig_height": None,         # figure height in inches (auto from species count if unset)
-    "dpi": 300,
-    "labels": {},
-    "focal_chrs": [],
+    "highlight_legend_title": "", # title for the highlighted-link legend
+    "grey_alpha": None,           # alpha for grey links (default: same as link_alpha)
+    "bar_height": 0.05,           # thickness of a chromosome bar (track units)
+    "space": 0.004,               # gap between chromosomes, as a fraction of the widest genome
+    "fig_width": 12.0,            # figure width in inches
+    "fig_height": None,           # figure height in inches (auto from species count if unset)
+    "dpi": 300,                   # figure dpi
+    "labels": {},                 # species -> label (default: species name)
+    "focal_chrs": [],             # 
     "chr_order": {},
     "colors_tsv": None,
     "out": None,}
@@ -99,7 +102,7 @@ def read_config(path):
     if out["max_links_mode"] not in ("all", "grey"):
         raise ValueError(f"{path}: max_links_mode must be 'all' or 'grey'")
 
-    for table in ("gff", "bedgraph", "links"):
+    for table in ("gff", "genomes", "bedgraph", "links"):
         stray = []
         for key, value in out[table].items():
             if not isinstance(value, str):
@@ -109,12 +112,12 @@ def read_config(path):
 
     config_folder = os.path.dirname(os.path.abspath(path))
 
-    for key in ("chr_sizes", "orthogroups", "colors_tsv", "chr_colors_tsv", "chr_names_tsv", "highlight_links_tsv"):
+    for key in ("chr_sizes", "orthogroups", "colors_tsv", "chr_colors_tsv", "chr_names_tsv", "highlight_links_tsv", "tree"):
         value = out[key]
         if value and not os.path.isabs(value):
             out[key] = os.path.normpath(os.path.join(config_folder, value))
 
-    for table in ("gff", "bedgraph", "links"):
+    for table in ("gff", "genomes", "bedgraph", "links"):
         for key, value in out[table].items():
             if not os.path.isabs(value):
                 out[table][key] = os.path.normpath(os.path.join(config_folder, value))
@@ -269,6 +272,7 @@ def layout(
     track_height,
     track_gap,
     bar_height,
+    normalise_chrs=False,
 ):
     # Calculate the total width of each species.
     genome_widths = {}
@@ -277,7 +281,12 @@ def layout(
         width = 0
 
         for chromosome in order[species]:
-            width += chr_sizes[species][chromosome]
+            if normalise_chrs:
+                if chr_sizes[species][chromosome] <= 0:
+                    raise ValueError("this normalise_chrs neeeds positive chromosome sizes")
+                width += 1
+            else:
+                width += chr_sizes[species][chromosome]
 
         genome_widths[species] = width
 
@@ -349,6 +358,8 @@ def layout(
 
         for chromosome in order[species]:
             chromosome_size = chr_sizes[species][chromosome]
+            if normalise_chrs:
+                chromosome_size = 1
 
             chromosome_spans[chromosome] = (
                 x_offset + cursor * scale,
@@ -390,6 +401,8 @@ def layout(
             "x_offset": x_offset,
             "span": chromosome_spans,
             "bp_before": bp_before,
+            "chr_sizes": chr_sizes[species],
+            "normalise_chrs": normalise_chrs,
             "lanes": track_lanes,
         }
 
@@ -426,6 +439,9 @@ def main_ribbon_painter(top_chr_span, bot_chr_span, y_top, y_bot, rgba):
 
 
 def _x_of(track, chrom, pos, scale):
+    if track.get("normalise_chrs", False):
+        left, right = track["span"][chrom]
+        return left + pos / track["chr_sizes"][chrom] * (right - left)
     return track["x_offset"] + (track["bp_before"][chrom] + pos) * scale
 
 
@@ -481,7 +497,10 @@ def track_patches(trk, track, scale, in_view, lane_h, y_center):
 def _foot(track, chrom, pos, half_width, scale, min_half):
     # foot is at least min_half wide (axis units) so ribbons stay visible even on huge
     # genomes where half_width bp is a tiny sliver of the track
-    center = track["x_offset"] + (track["bp_before"][chrom] + pos) * scale
+    center = _x_of(track, chrom, pos, scale)
+    if track.get("normalise_chrs", False):
+        left, right = track["span"][chrom]
+        scale = (right - left) / track["chr_sizes"][chrom]
     half = max(half_width * scale, min_half)
     x0, x1 = track["span"][chrom]
     return max(x0, center - half), min(x1, center + half)
@@ -489,14 +508,13 @@ def _foot(track, chrom, pos, half_width, scale, min_half):
 
 def bedgraph_patches(chrs, track, scale, bg_df, cmap, norm, y, bar_h):
     in_view = set(chrs)
-    x_off = track["x_offset"]
     patches = []
     for chrom, start, end, value in zip(bg_df.chrom, bg_df.start, bg_df.end, bg_df.value):
         if chrom not in in_view:
             continue
         cx0, cx1 = track["span"][chrom]
-        x0 = max(x_off + (track["bp_before"][chrom] + start) * scale, cx0)
-        x1 = min(x_off + (track["bp_before"][chrom] + end) * scale, cx1)
+        x0 = max(_x_of(track, chrom, start, scale), cx0)
+        x1 = min(_x_of(track, chrom, end, scale), cx1)
         if x1 > x0:
             patches.append(Rectangle((x0, y - bar_h / 2), x1 - x0, bar_h, facecolor=cmap(norm(value)), edgecolor="none"))
     return patches
@@ -605,7 +623,7 @@ def draw_scale_bar(ax, cfg, lay, left_edge, scale):
     # bottom-left reference bar. returns the y_bottom the axis limits should use
     # (lowered a bit to leave room for it), unchanged if scale_bar_mb is off
     y_bottom = lay["y_bottom"]
-    if not cfg["scale_bar_mb"]:
+    if cfg["normalise_chrs"] or not cfg["scale_bar_mb"]:
         return y_bottom
     length = cfg["scale_bar_mb"] * 1_000_000 * scale
     y0 = y_bottom - 0.18
@@ -635,13 +653,76 @@ def add_highlight_legend(ax, cfg):
     ax.legend(handles=handles, loc="upper right", fontsize=7, frameon=True, framealpha=0.9, borderpad=0.5, labelspacing=0.3, handlelength=1.2, title=cfg["highlight_legend_title"] or None, title_fontsize=7)
 
 
+def draw_tree(ax, cfg, lay):
+    from Bio import Phylo
+
+    tree = Phylo.read(cfg["tree"], "newick")
+    chain = cfg["chain"]
+    tips = tree.get_terminals()
+    names = []
+    for tip in tips:
+        names.append(tip.name)
+    if None in names or len(names) != len(set(names)):
+        raise ValueError("tree tips need unique species names")
+    missing = []
+    for sp in chain:
+        if sp not in names:
+            missing.append(sp)
+    if missing:
+        raise ValueError(f"tree is missing species from chain: {missing}")
+    for tip in tips:
+        if tip.name not in chain:
+            tree.prune(tip)
+
+    y = {}
+    for tip in tree.get_terminals():
+        y[tip] = lay["track"][tip.name]["y"]
+
+    for node in tree.get_nonterminals(order="postorder"):
+        rows = []
+        for tip in node.get_terminals():
+            rows.append(chain.index(tip.name)) 
+
+        if max(rows) - min(rows) + 1 != len(rows):
+            raise ValueError("tree groups non adjacent species; reorrder chain so each clade remains together")
+        ys = []
+        for child in node.clades:
+            ys.append(y[child])
+        y[node] = (min(ys) + max(ys)) / 2 
+
+    tree.root.branch_length = 0
+    depth = tree.depths(unit_branch_lengths=True)
+    d = max(depth.values()) or 1
+    x = {}
+    for node in tree.find_clades():
+        x[node] = depth[node] / d
+        if node.is_terminal():
+            x[node] = 1
+
+    ax.plot([0, x[tree.root]], [y[tree.root], y[tree.root]], color="black", lw=1)
+    for node in tree.get_nonterminals():
+        ys = []
+        for child in node.clades:
+            ys.append(y[child])
+        ax.plot([x[node], x[node]], [min(ys), max(ys)], color="black", lw=1)
+        for child in node.clades:
+            ax.plot([x[node], x[child]], [y[child], y[child]], color="black", lw=1)
+    ax.set_xlim(-0.05, 1.05)
+    ax.axis("off")
+
+
 def draw(chain, order, lay, links_by_pair, cfg, bedgraphs, norm, cmap, highlights):
     # bedgraphs is species -> DataFrame (colours the bars, adds a colorbar legend);
     # highlights is pair -> DataFrame with an 'hl_color' column, drawn opaque on top
     scale = lay["scale"]
     left_edge = min(t["x_offset"] for t in lay["track"].values())
     fig_height = _figure_height(cfg, lay, len(chain))
-    fig, ax = plt.subplots(figsize=(cfg["fig_width"], fig_height))
+    if cfg["tree"]:
+        fig, (tree_ax, ax) = plt.subplots(1, 2, sharey=True, figsize=(cfg["fig_width"], fig_height),
+                                        gridspec_kw={"width_ratios": [1, 6]})
+        draw_tree(tree_ax, cfg, lay)
+    else:
+        fig, ax = plt.subplots(figsize=(cfg["fig_width"], fig_height))
 
     draw_chromosome_bars(ax, chain, order, lay, cfg, bedgraphs, norm, cmap, scale, left_edge)
     draw_track_lanes(ax, chain, order, lay, cfg, scale, left_edge)
@@ -649,10 +730,16 @@ def draw(chain, order, lay, links_by_pair, cfg, bedgraphs, norm, cmap, highlight
     draw_highlighted_links(ax, chain, lay, highlights, cfg, scale)
     y_bottom = draw_scale_bar(ax, cfg, lay, left_edge, scale)
 
-    ax.set_xlim(left_edge - 0.22, 1.02)
+    if cfg["tree"]:
+        ax.set_xlim(left_edge - 0.03, 1.02)
+    else:
+        ax.set_xlim(left_edge - 0.22, 1.02)
     ax.set_ylim(y_bottom - 0.45, lay["y_top"] + 0.45)
     ax.axis("off")
-    fig.tight_layout()
+    if cfg["tree"]:
+        fig.tight_layout(w_pad=0.5)
+    else:
+        fig.tight_layout()
 
     add_bedgraph_legend(fig, ax, bedgraphs, norm, cmap, cfg)
     add_highlight_legend(ax, cfg)
@@ -680,7 +767,13 @@ def setup_focal_colors(cfg, chr_sizes, focal):
     if cfg["colors_tsv"]:
         focal_colors = read_colors(cfg["colors_tsv"])
     else:
-        chromosomes = list(chr_sizes.get(focal, {}).keys())
+        chromosomes = []
+        for chromosome, size in chr_sizes.get(focal, {}).items():
+            if size < cfg["min_chr_size"]:
+                continue
+            if focal_chrs and chromosome not in focal_chrs:
+                continue
+            chromosomes.append(chromosome)
         focal_colors = auto_colors(chromosomes)
         print(f"  auto-generated {len(focal_colors)} focal colours")
 
@@ -1073,7 +1166,7 @@ def plot(config_path):
 
     tracks_for = load_tracks(cfg, chain)
 
-    lay = layout(chain, order, chr_sizes, cfg["space"], tracks_for, cfg["track_height"], 0.04, cfg["bar_height"])
+    lay = layout(chain, order, chr_sizes, cfg["space"], tracks_for, cfg["track_height"], 0.04, cfg["bar_height"], cfg["normalise_chrs"])
     fig = draw(chain, order, lay, sampled, cfg, bedgraphs, norm, cmap, highlights)
 
     for output_path in cfg["out"]:
