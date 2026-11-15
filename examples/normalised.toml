@@ -1,0 +1,18 @@
+chr_sizes = "../example_data/chr_sizes.tsv"
+chain = ["spA", "spB", "spC"]
+focal = "spA"
+
+# Same width for every chr. A gene halfway along a chr stays halfway along its bar.
+# Keep input coordinates in bp. The Mb scale bar is hidden in this mode.
+normalise_chrs = true
+
+sort = "synteny"
+chr_label = true
+chr_label_style = "name"
+half_width = 150000
+out = ["plot_normalised.png", "plot_normalised.svg"]
+dpi = 150
+
+[links]
+spA_spB = "../example_data/links_spA_spB.tsv"
+spB_spC = "../example_data/links_spB_spC.tsv"
