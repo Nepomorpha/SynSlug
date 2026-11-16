@@ -2,17 +2,17 @@
 
 """
 
-Program     : SynViser, synteny visualisation tool.
+Program     : SynSlug, synteny visualisation tool.
 Language    : Python
 Authors     : Yehor Tertyshnyk, Mirela Krol
 Email       : egor.tertyshnyk@gmail.com
-Github      : https://github.com/Nepomorpha/SynViser
+Github      : https://github.com/Nepomorpha/SynSlug
 License     : MIT License
 Citation    : -TBS-
 
 Description : This program is designed to take various inputs from config files and produce synteny plots.
 
-Usage:         python synviser.py config.toml
+Usage:         python synslug.py config.toml
 
 Instructions: see README.md or dedicated .ipynb notebooks for more details.
 
@@ -25,7 +25,7 @@ from functions import plot
 
 def main():
     if len(sys.argv) < 2:
-        print("usage: python synviser.py config.toml [config2.toml ...]")
+        print("usage: python synslug.py config.toml [config2.toml ...]")
         sys.exit(1)
     failed = False 
     for config_path in sys.argv[1:]:
