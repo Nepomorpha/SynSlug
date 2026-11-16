@@ -12,24 +12,24 @@ python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r software/SynSlug/requirements.txt
 ```
-
+(Python 3.11 or newer)
 
 
 **Step 2. Get your genomes and proteomes**
 
-Let's say we want to visualise synteny across five sea slug species. 
+Let's say we want to visualise _synteny_ across five sea _slug_ species. 
 Where do we start? 
 First, we need to collect the genome and proteome files for each species.
 
-In this guide, we'll use data from NCBI. To make things easier, let's walk through the process using Berghia stephanieae as our first example.
+In this guide, we'll use data from NCBI. To make things easier, let's walk through the process using _Berghia stephanieae_ as our first example.
 
 We'll download both the genome assembly and its corresponding proteome, which we'll need for the downstream synteny analysis.
 
 For example, let's download the required files for Berghia stephanieae. We'll need three files:
 
-Protein sequences (.faa.gz) – for the OrthoFinder analysis.
-Gene annotations (.gff.gz) – to determine gene positions on chromosomes.
-Genome sequences (.fa.gz) – to retrieve chromosome or scaffold lengths when needed.
+Protein sequences (`.faa.gz`) – for the OrthoFinder analysis.
+Gene annotations (`.gff.gz`) – to determine **gene positions** on chromosomes.
+Genome sequences (`.fa.gz`) - to retrieve chromosome or **scaffold lengths* _when needed_.
 
 You can download all three directly from NCBI using curl:
 
@@ -39,21 +39,14 @@ curl -fL --retry 3 https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/034/508/935/GCF_
 curl -fL --retry 3 https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/034/508/935/GCF_034508935.2_UCSD_Bste_1.3/GCF_034508935.2_UCSD_Bste_1.3_genomic.fna.gz -o "$work/downloads/Berghia_stephanieae.fa.gz"
 ```
 
-You can also compress the files using gzip if needed:
-
-```bash
-gzip -dc "$WORK/downloads/Berghia_stephanieae.faa.gz" > "$WORK/proteins/Berghia_stephanieae.fa"
-gzip -dc "$WORK/downloads/Phyllidia_flava.faa.gz" > "$WORK/proteins/Phyllidia_flava.fa"
-...
-```
-
 
 
 **Step 3. Run OrthoFinder**
 
-Next, it's time to run OrthoFinder ([Emms & Kelly, 2015](https://doi.org/10.1186/s13059-015-0721-2), [2019](https://doi.org/10.1186/s13059-019-1832-y). You can run it in whichever way works best for you.
+Although SynSlug supports other input formats, such as "links", OrthoFinder is probably the easiest option to start with, as it requires the least amount of file preparation.
 
-Although SynSlug supports other input formats, such as links to files, OrthoFinder is probably the easiest option to start with, as it requires the least amount of file preparation.
+Lets say we acquired those 3 data inputs for all species we want to visualise, in our case those are 5 sea slugs datasets. Next step, it's time to run OrthoFinder ([Emms & Kelly, 2015](https://doi.org/10.1186/s13059-015-0721-2), [2019](https://doi.org/10.1186/s13059-019-1832-y). 
+
 
 
 ```bash
@@ -65,7 +58,7 @@ OrthoFinder-2.5.5/orthofinder.py \
 
 For now, the file we're most interested in is `/results/Results_Nov15/Orthogroups/Orthogroups.tsv`
 
-This file contains 19,312 orthogroups (plus one header line). We'll use it as the starting point for the next steps of our synteny visualisation workflow.
+This file contains 19,312 orthogroups for 5 species of sea slugs. We'll use it as the starting point.
 
 ```bash
 wc -l /results/Results_Nov15/Orthogroups/Orthogroups.tsv
@@ -76,7 +69,7 @@ wc -l /results/Results_Nov15/Orthogroups/Orthogroups.tsv
 
 **Step 4. Create and configure config.toml**
 
-Now that we have our orthogroups and annotation files, it's time to give SynSlug the instructions how to use them. We do this by creating a config.toml file.
+Now that we have our orthogroups and annotation files, it's time to give SynSlug the instructions how to use them. We use `.toml` files because they are easy to edit and share, and make it easier to document and reproduce your plots. The idea is that you would have one `.toml` config per plot.
 
 A few key settings control how the synteny plot will look:
 
@@ -113,7 +106,7 @@ Onchidella_celtica = "downloads/Onchidella_celtica.gff.gz"
 [genomes]
 Elysia_timida = "downloads/Elysia_timida.fa.gz"
 ```
-As you can see you don't need to decompress your files first – SynSlug can read the original compressed GFFs and genome files directly.
+> By the way, .gz reading is supported.
 
 A couple of basic settings are worth highlighting:
 
