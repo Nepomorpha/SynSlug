@@ -88,7 +88,8 @@ def read_gff_positions(path):
         for line in fh:
             if line.startswith("##sequence-region"):
                 row = line.split()
-                sizes[row[1]] = int(row[3])
+                if row[2] == "1":
+                    sizes[row[1]] = int(row[3])
                 continue
             if line.startswith("##FASTA"):
                 break
