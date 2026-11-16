@@ -6,8 +6,8 @@
 # Usage:
 #   python scripts/chromosome_orthologs.py config.toml [out.png]
 #
-# This uses the OrthoFinder and GFF files taht you would use for normal SynViser run.
-# Unlike the main SynViser program, this script also needs seaborn and scipy.
+# This uses the OrthoFinder and GFF files taht you would use for normal SynSlug run.
+# Unlike the main SynSlug program, this script also needs seaborn and scipy.
 
 import os
 import sys

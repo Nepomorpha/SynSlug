@@ -53,7 +53,7 @@ gzip -dc "$WORK/downloads/Phyllidia_flava.faa.gz" > "$WORK/proteins/Phyllidia_fl
 
 Next, it's time to run OrthoFinder (ref). You can run it in whichever way works best for you.
 
-Although Guide.me supports other input formats, such as links to files, OrthoFinder is probably the easiest option to start with, as it requires the least amount of file preparation.
+Although SynSlug supports other input formats, such as links to files, OrthoFinder is probably the easiest option to start with, as it requires the least amount of file preparation.
 
 
 ```bash
@@ -130,7 +130,7 @@ Once your configuration file is ready, run SynSlug from the project folder:
 
 ```bash
 source .venv/bin/activate
-python software/SynViser/synviser.py config.toml
+python software/SynSlug/synslug.py config.toml
 ```
 
 This saves `results/sea_slugs.png`.

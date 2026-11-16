@@ -1,0 +1,22 @@
+orthogroups = "../../example_data/sea_slugs/Orthogroups.tsv"
+chain = ["Berghia_stephanieae", "Phyllidia_flava", "Elysia_timida", "Elysia_crispata", "Onchidella_celtica"]
+focal = "Berghia_stephanieae"
+colors_tsv = "../../example_data/sea_slugs/colours.tsv"
+chr_colors_tsv = "../../example_data/sea_slugs/colours.tsv"
+
+out = ["sea_slugs.png", "sea_slugs.svg"]
+
+min_chr_size = 1_000_000
+max_links = 2000
+max_links_mode = "all"
+dpi = 150
+
+[gff]
+Berghia_stephanieae = "../../example_data/sea_slugs/downloads/Berghia_stephanieae.gff.gz"
+Phyllidia_flava = "../../example_data/sea_slugs/downloads/Phyllidia_flava.gff.gz"
+Elysia_timida = "../../example_data/sea_slugs/downloads/Elysia_timida.gff.gz"
+Elysia_crispata = "../../example_data/sea_slugs/downloads/Elysia_crispata.gff.gz"
+Onchidella_celtica = "../../example_data/sea_slugs/downloads/Onchidella_celtica.gff.gz"
+
+[genomes]
+Elysia_timida = "../../example_data/sea_slugs/downloads/Elysia_timida.fa.gz"

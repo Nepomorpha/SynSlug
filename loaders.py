@@ -1,10 +1,10 @@
 """
 
-Program     : SynViser, synteny visualisation tool.
+Program     : SynSlug, synteny visualisation tool.
 Language    : Python
 Authors     : Yehor Tertyshnyk, Mirela Krol
 Email       : egor.tertyshnyk@gmail.com
-Github      : https://github.com/Nepomorpha/SynViser
+Github      : https://github.com/Nepomorpha/SynSlug
 License     : MIT
 Citation    : -TBS-
 
