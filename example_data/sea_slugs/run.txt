@@ -1,0 +1,18 @@
+Five sea-slug protein sets, downloaded 2026-11-15.
+Original protein IDs and isoforms retained.
+
+Berghia_stephanieae: 43318 proteins
+Phyllidia_flava: 29378 proteins
+Elysia_timida: 19904 proteins
+Elysia_crispata: 33162 proteins
+Onchidella_celtica: 18945 proteins
+
+OrthoFinder 2.5.5, DIAMOND 2.2.1, MCL 22-282.
+Command from the guide folder:
+conda run --no-capture-output -n bio-synteny python software/OrthoFinder-2.5.5/orthofinder.py -f proteins -o results -S diamond -t 12 -a 4 -og
+
+19312 orthogroups, 133598 of 144707 proteins assigned.
+Download links and assembly versions are in sources.tsv.
+
+OrthoFinder: Emms & Kelly (2019), Genome Biology 20:238.
+https://doi.org/10.1186/s13059-019-1832-y
