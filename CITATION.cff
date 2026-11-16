@@ -1,12 +1,12 @@
 cff-version: 1.2.0
-message: "If you use synViser, please cite the preferred citation below."
-title: "SynViser"
+message: "If you use SynSlug, please cite the preferred citation below."
+title: "SynSlug"
 authors:
   - family-names: "Tertyshnyk"
     given-names: "Yehor"
   - family-names: "Król"
     given-names: "Mirela"
-repository-code: "https://github.com/Nepomorpha/SynViser"
+repository-code: "https://github.com/Nepomorpha/SynSlug"
 license: "MIT"
 
 version: "0.1.0"
