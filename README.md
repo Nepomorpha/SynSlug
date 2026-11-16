@@ -1,4 +1,5 @@
-# SynViser
+![SynSlug](synslug_baner.png.webp)
+
 A simple matplotlib based program for easy and adjustable plotting of Ribbon-plots to explore synteny. 
 
 We suggest you to try our [Jupyter Notebook](01_genome_analysis_pipeline.ipynb) for step by step analysis of your dataset.
