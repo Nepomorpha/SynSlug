@@ -51,7 +51,7 @@ gzip -dc "$WORK/downloads/Phyllidia_flava.faa.gz" > "$WORK/proteins/Phyllidia_fl
 
 **Step 3. Run OrthoFinder**
 
-Next, it's time to run OrthoFinder (ref). You can run it in whichever way works best for you.
+Next, it's time to run OrthoFinder ([Emms & Kelly, 2015](https://doi.org/10.1186/s13059-015-0721-2), [2019](https://doi.org/10.1186/s13059-019-1832-y). You can run it in whichever way works best for you.
 
 Although SynSlug supports other input formats, such as links to files, OrthoFinder is probably the easiest option to start with, as it requires the least amount of file preparation.
 
