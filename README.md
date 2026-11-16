@@ -135,9 +135,83 @@ python software/SynSlug/synslug.py config.toml
 
 This saves `results/sea_slugs.png`.
 
+![Five sea slugs](examples/sea_slugs/sea_slugs.png)
+
 
 **Want to customise your plot?**
 
 What we've covered so far is just the basic functionality of SynSlug! The tool is highly customisable, allowing you to tweak many aspects of your visualisation, including colours, link opacity, gene highlighting and even loop visualisation.
 
 There's much more to explore! You'll find instructions for all these additional features in the following sections of the guide.
+
+But just as some examples, add these settings to `config.toml`, above `[gff]`.
+
+To show chr labels:
+```toml
+chr_label = true
+chr_label_style = "name"
+```
+
+![Chr labels](examples/sea_slugs/sea_slugs_fancy.png)
+
+You can also add any kind of `.bedgraph`, for example here simple gene density, for example here we add this table at the bottom of your config:
+```toml
+[bedgraph]
+Berghia_stephanieae = "software/SynSlug/example_data/sea_slugs/gene_density.bedgraph"
+```
+
+![Gene density](examples/sea_slugs/sea_slugs_bedgraph.png)
+
+You can also add a newick tree, put its path above `[gff]`, but read more on that in [tree_study.ipynb](studies/tree_study.ipynb).
+
+```toml
+tree = "software/SynSlug/example_data/sea_slugs/tree.nwk"
+```
+
+![Tree](examples/sea_slugs/sea_slugs_all.png)
+
+To draw all chromosomes with the same width "normalised chromosomes":
+
+```toml
+normalise_chrs = true
+```
+
+![Same chr width](examples/sea_slugs/sea_slugs_normalised.png)
+
+To use your own colours, supply a tab separated (\t) file with `chr` and `color` columns:
+
+```toml
+colors_tsv = "software/SynSlug/example_data/sea_slugs/colours.tsv"
+chr_colors_tsv = "software/SynSlug/example_data/sea_slugs/colours.tsv"
+```
+
+The first colours the links, second colours the chr bars.
+
+You canmake links less strong or change their width:
+
+```toml
+link_alpha = 0.2
+half_width = 100000
+```
+
+If you want to display representation of 3D structures such as loops and TADs you can change `type` in `[[tracks]]` and supply it with relevant file format such as `.bedpe` for loops and `.bed` for TADs:
+
+```toml
+[[tracks]]
+species = "sp1"
+type = "tad"
+file = "tads.bed"
+where = "below"
+```
+
+or 
+
+```toml
+[[tracks]]
+species = "sp1"
+type = "loop"
+file = "loops.bedpe"
+where = "above"
+```
+
+More follows!
