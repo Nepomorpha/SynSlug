@@ -4,8 +4,10 @@ title: "SynSlug"
 authors:
   - family-names: "Tertyshnyk"
     given-names: "Yehor"
+    orcid: "https://orcid.org/0009-0002-8099-7498"
   - family-names: "Król"
     given-names: "Mirela"
+    orcid: "https://orcid.org/0009-0005-4278-2818"
 repository-code: "https://github.com/Nepomorpha/SynSlug"
 license: "MIT"
 
