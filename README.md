@@ -1,3 +1,4 @@
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24295463.svg)](https://doi.org/10.5281/zenodo.24295463)
 ![SynSlug](synslug_baner.png.webp)
 
 **Step 1. Clone SynSlug**
