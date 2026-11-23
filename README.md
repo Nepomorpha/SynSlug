@@ -46,7 +46,7 @@ curl -fL --retry 3 https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/034/508/935/GCF_
 
 Although SynSlug supports other input formats, such as "links", OrthoFinder is probably the easiest option to start with, as it requires the least amount of file preparation.
 
-Lets say we acquired those 3 data inputs for all species we want to visualise, in our case those are 5 sea slugs datasets. Next step, it's time to run OrthoFinder ([Emms & Kelly, 2015](https://doi.org/10.1186/s13059-015-0721-2), [2019](https://doi.org/10.1186/s13059-019-1832-y). 
+Lets say we acquired those 3 data inputs for all species we want to visualise, in our case those are 5 sea slugs datasets. Next step, it's time to run OrthoFinder ([Emms & Kelly, 2015](https://doi.org/10.1186/s13059-015-0721-2), [2019](https://doi.org/10.1186/s13059-019-1832-y)). 
 
 
 
