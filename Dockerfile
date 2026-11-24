@@ -14,7 +14,6 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
     MPLBACKEND=Agg \
-    MPLCONFIGDIR=/tmp/matplotlib \
     PYTHONPATH=/opt/synslug
 
 # procps provides `ps`, which Nextflow and similar workflow managers expect
@@ -33,7 +32,14 @@ COPY example_data/ ./example_data/
 COPY examples/*.toml ./examples/
 
 # `synslug` command on PATH
-RUN printf '#!/bin/sh\nexec python /opt/synslug/synslug.py "$@"\n' > /usr/local/bin/synslug \
+# Give matplotlib a per-user cache folder: under Singularity/Apptainer /tmp is
+# the host's shared /tmp, and under `docker run -u` there is no writable $HOME.
+RUN printf '%s\n' \
+      '#!/bin/sh' \
+      ': "${MPLCONFIGDIR:=${TMPDIR:-/tmp}/matplotlib-$(id -u)}"' \
+      'export MPLCONFIGDIR' \
+      'exec python /opt/synslug/synslug.py "$@"' \
+      > /usr/local/bin/synslug \
  && chmod +x /usr/local/bin/synslug
 
 # Configs are usually written with paths relative to the project folder,
