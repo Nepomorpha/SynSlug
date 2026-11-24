@@ -15,6 +15,28 @@ python -m pip install -r software/SynSlug/requirements.txt
 ```
 (Python 3.11 or newer)
 
+**Alternative: use the container image**
+
+Instead of a virtual environment, you can use the ready-made image, which is rebuilt for every release and published to the GitHub Container Registry:
+
+```bash
+docker pull ghcr.io/nepomorpha/synslug:latest
+```
+
+Run it from your project folder, mounting that folder at `/data`:
+
+```bash
+docker run --rm -u "$(id -u):$(id -g)" -v "$PWD":/data ghcr.io/nepomorpha/synslug:latest synslug config.toml
+```
+
+On HPC clusters without Docker, use Apptainer/Singularity instead:
+
+```bash
+apptainer exec docker://ghcr.io/nepomorpha/synslug:latest synslug config.toml
+```
+
+Paths inside a config are resolved relative to the config file, so every file the config points to (and the output folder) must be inside the mounted folder. Replace `latest` with a release number (for example `0.1.1`) to pin a version. The helper scripts are also included, e.g. `python /opt/synslug/scripts/dotplot.py`. To build the image yourself, run `docker build -t synslug .` in the repository.
+
 
 **Step 2. Get your genomes and proteomes**
 
