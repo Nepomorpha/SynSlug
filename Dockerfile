@@ -1,0 +1,43 @@
+# SynSlug container image
+# Build:  docker build -t synslug .
+# Run:    docker run --rm -u "$(id -u):$(id -g)" -v "$PWD":/data synslug synslug config.toml
+
+FROM python:3.12-slim
+
+LABEL org.opencontainers.image.title="SynSlug" \
+      org.opencontainers.image.description="Synteny visualisation tool" \
+      org.opencontainers.image.source="https://github.com/Nepomorpha/SynSlug" \
+      org.opencontainers.image.licenses="MIT"
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    MPLBACKEND=Agg \
+    MPLCONFIGDIR=/tmp/matplotlib \
+    PYTHONPATH=/opt/synslug
+
+# procps provides `ps`, which Nextflow and similar workflow managers expect
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends procps \
+ && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /opt/synslug
+
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+
+COPY synslug.py functions.py loaders.py orthofinder.py ./
+COPY scripts/ ./scripts/
+COPY example_data/ ./example_data/
+COPY examples/*.toml ./examples/
+
+# `synslug` command on PATH
+RUN printf '#!/bin/sh\nexec python /opt/synslug/synslug.py "$@"\n' > /usr/local/bin/synslug \
+ && chmod +x /usr/local/bin/synslug
+
+# Configs are usually written with paths relative to the project folder,
+# so mount that folder here.
+WORKDIR /data
+
+CMD ["synslug"]

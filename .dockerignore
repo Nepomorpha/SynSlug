@@ -1,0 +1,14 @@
+.git
+.github
+.venv
+**/__pycache__
+**/*.pyc
+.ipynb_checkpoints
+studies/
+tests/
+*.ipynb
+*.png
+*.webp
+*.svg
+example_data/*.fai
+example_data/*.gzi
